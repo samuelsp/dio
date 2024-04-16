@@ -1,3 +1,5 @@
+from datetime import datetime
+
 menu = """
 [1] Depositar
 [2] Sacar
@@ -12,6 +14,7 @@ print("###### SISTEMA BANCÁRIO DIO ######")
 
 while True:
     print(menu)
+    hoje = datetime.now()
 
     try:
         opcao = int(input("Informe uma opção: "))
@@ -23,7 +26,8 @@ while True:
         deposito = float(input("Informe o valor do depósito: "))
         if deposito > 0:
             saldo += deposito
-            extrato += f"Depósito: R$ {deposito:.2f}\n"
+            hoje = hoje.strftime("%d/%m/%Y %H:%M:%S")
+            extrato += f"Depósito: R$ {deposito:.2f} realizado em {hoje}.\n"
         else:
             print("Operação falhou! O valor informado para depósito é inválido!")
 
@@ -46,7 +50,8 @@ while True:
         elif saque > 0:
             saldo -= saque
             numero_saques -= 1
-            extrato += f"Saque: R$ {saque:.2f}\n"
+            hoje = hoje.strftime("%d/%m/%Y %H:%M:%S")
+            extrato += f"Saque: R$ {saque:.2f} realizado em {hoje}.\n"
 
         else:
             print("Operação falhou! O valor informado para saque é inválido.")
