@@ -1,6 +1,3 @@
-# README.md
-
-
 # Conta Bancária em Python
 
 Este projeto é uma simulação simples de um sistema de conta bancária. Ele permite que os usuários criem contas, depositem e retirem dinheiro, e vejam seu extrato. O projeto foi escrito em Python.
@@ -32,4 +29,4 @@ Para executar este projeto, siga estas etapas:
 3. Abra um terminal e navegue até o diretório onde o arquivo `conta-bancaria.py` está localizado.
 4. Execute o comando `python conta-bancaria.py`.
 5. Siga as instruções exibidas no terminal para interagir com o sistema de conta bancária.
-```
+
