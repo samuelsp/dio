@@ -19,6 +19,6 @@ class PessoaFisica(Cliente):
         return (f"Nome: {self._nome}\n"
                 f"Data Nascimento: {self._data_nascimento}\n"
                 f"CPF: {self._cpf}\n"
-                f"Endereço: {self.endereco}\n"
-                f"Contas: {self._contas}")
+                f"Endereço: {self.endereco}\n")
+
 

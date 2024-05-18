@@ -66,53 +66,63 @@ def criar_conta(numero_conta, clientes, contas):
     cliente.contas.append(conta)
     print("\n=== Conta criada com sucesso! ===")
 
+def filtrar_conta(nro_conta, agencia, contas):
+    contas_filtradas = [conta for conta in contas if conta.numero == nro_conta and conta.agencia == agencia]
+    return contas_filtradas[0] if contas_filtradas else None
+
 def listar_contas(contas):
     for conta in contas:
         print("=" * 100)
         print(textwrap.dedent(str(conta)))
 
-def depositar(clientes):
-    cpf = input('Digite o CPF do cliente: ')
-    cliente = recuperar_cliente(clientes, cpf)
-    if cliente:
+def recuperar_conta(nro_conta, agencia, contas):
+    conta = filtrar_conta(nro_conta, agencia, contas)
+    if not conta:
+        return None
+    return conta
+
+def depositar(contas):
+    nro_conta = int(input('Digite o número da conta: '))
+    agencia = input('Digite a agência: ')
+    conta = recuperar_conta(nro_conta, agencia, contas)
+
+    if conta:
         valor = float(input('Digite o valor a ser depositado: '))
         transacao = Deposito(valor)
-        conta = recuperar_conta_cliente(cliente)
-        if not conta:
-            print('Conta não encontrada')
-            return
+        conta.cliente.realizar_transacao(conta, transacao)
 
-        cliente.realizar_transacao(conta, transacao)
-
-def sacar(clientes):
-    cpf = input('Digite o CPF do cliente: ')
-    cliente = recuperar_cliente(clientes, cpf)
-    if cliente:
-        valor = float(input('Digite o valor do saque: '))
-        transacao = Saque(valor)
-        conta = recuperar_conta_cliente(cliente)
-        if not conta:
-            print('Conta não encontrada')
-            return
-
-        cliente.realizar_transacao(conta, transacao)
-
-def exibir_extrato(clientes):
-    cpf = input('Digite o CPF do cliente: ')
-    cliente = recuperar_cliente(clientes, cpf)
-
-    if not cliente:
-        print('Cliente não encontrado')
+    if not conta:
+        print('Conta não encontrada')
         return
 
-    if cliente:
-        conta = recuperar_conta_cliente(cliente)
-        if not conta:
-            print('Conta não encontrada')
-            return
+def sacar(contas):
+    nro_conta = int(input('Digite o número da conta: '))
+    agencia = input('Digite a agência: ')
+    conta = recuperar_conta(nro_conta, agencia, contas)
 
+    if conta:
+        valor = float(input('Digite o valor do saque: '))
+        transacao = Saque(valor)
+        conta.cliente.realizar_transacao(conta, transacao)
+
+    if not conta:
+        print('Conta não encontrada')
+        return
+
+def exibir_extrato(contas):
+    nro_conta = int(input('Digite o número da conta: '))
+    agencia = input('Digite a agência: ')
+    conta = recuperar_conta(nro_conta, agencia, contas)
+    titular = conta.cliente.nome
+
+    if not conta:
+        print('Conta não encontrado')
+        return
+
+    if conta:
         print("\n================ EXTRATO ================")
         transacoes = conta.historico.transacoes
+        print("Titular:\t", titular)
 
         extrato = ""
         if not transacoes:
@@ -133,11 +143,11 @@ def atm():
         print(menu)
         opcao = input('Digite a opção desejada: ')
         if opcao == '1':
-            depositar(clientes)
+            depositar(contas)
         elif opcao == '2':
-            sacar(clientes)
+            sacar(contas)
         elif opcao == '3':
-            exibir_extrato(clientes)
+            exibir_extrato(contas)
         elif opcao == '4':
             criar_cliente(clientes)
         elif opcao == '5':
