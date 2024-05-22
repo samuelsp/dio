@@ -8,6 +8,7 @@ from transacao import Transacao
 from historico import Historico
 
 import textwrap
+from datetime import datetime
 
 menu = '''
 [1] - Depositar
@@ -20,7 +21,15 @@ menu = '''
 [8] - Sair
 '''
 
+def log_transacao(func):
+    def wrapper(*args, **kwargs):
+        resultado = func(*args, **kwargs)
+        print(f"{datetime.now()}: {func.__name__.upper()}")
+        return resultado
+    return wrapper
+
 # cliente
+@log_transacao
 def criar_cliente(clientes):
     cpf = input("Informe o CPF: ")
     cliente = recuperar_cliente(clientes, cpf)
@@ -53,7 +62,9 @@ def listar_clientes(clientes):
     for cliente in clientes:
         print("=" * 100)
         print(textwrap.dedent(str(cliente)))
+
 # conta
+@log_transacao
 def criar_conta(numero_conta, clientes, contas):
     cpf = input('Digite o CPF do cliente: ')
     cliente = recuperar_cliente(clientes, cpf)
@@ -81,6 +92,7 @@ def recuperar_conta(nro_conta, agencia, contas):
         return None
     return conta
 
+@log_transacao
 def depositar(contas):
     nro_conta = int(input('Digite o número da conta: '))
     agencia = input('Digite a agência: ')
@@ -95,6 +107,7 @@ def depositar(contas):
         print('Conta não encontrada')
         return
 
+@log_transacao
 def sacar(contas):
     nro_conta = int(input('Digite o número da conta: '))
     agencia = input('Digite a agência: ')
@@ -109,6 +122,7 @@ def sacar(contas):
         print('Conta não encontrada')
         return
 
+@log_transacao
 def exibir_extrato(contas):
     nro_conta = int(input('Digite o número da conta: '))
     agencia = input('Digite a agência: ')
@@ -122,14 +136,19 @@ def exibir_extrato(contas):
     if conta:
         print("\n================ EXTRATO ================")
         transacoes = conta.historico.transacoes
-        print("Titular:\t", titular)
+        print("Titular:", titular)
 
         extrato = ""
-        if not transacoes:
+        tem_transacao = False
+
+        for transacao in conta.historico.gerar_relatorio():
+            tem_transacao = True
+            extrato += (f"\n{transacao['tipo']}\n"
+                        f"Realizado em {transacao['data']}"
+                        f"\nValor: R$ {transacao['valor']:.2f}\n")
+
+        if not tem_transacao:
             extrato = "Não foram realizadas movimentações."
-        else:
-            for transacao in transacoes:
-                extrato += f"{transacao['tipo']}:\n\tR$ {transacao['valor']:.2f}\n"
 
         print(extrato)
         print(f"\nSaldo:\n\tR$ {conta.saldo:.2f}")
@@ -161,7 +180,6 @@ def atm():
             break
         else:
             print('Opção inválida')
-
 
 if __name__ == '__main__':
     atm()
