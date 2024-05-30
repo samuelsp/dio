@@ -15,6 +15,10 @@ class PessoaFisica(Cliente):
     def nome(self):
         return self._nome
 
+    @property
+    def data_nascimento(self):
+        return self._data_nascimento
+
     def __str__(self):
         return (f"Nome: {self._nome}\n"
                 f"Data Nascimento: {self._data_nascimento}\n"

@@ -6,6 +6,8 @@ from deposito import Deposito
 from saque import Saque
 from transacao import Transacao
 from historico import Historico
+from contas_iterador import ContasIterador
+from clientes_iterator import ClientesIterator
 
 import textwrap
 from datetime import datetime
@@ -59,7 +61,7 @@ def recuperar_cliente(clientes, cpf):
     return cliente
 
 def listar_clientes(clientes):
-    for cliente in clientes:
+    for cliente in ClientesIterator(clientes):
         print("=" * 100)
         print(textwrap.dedent(str(cliente)))
 
@@ -82,7 +84,7 @@ def filtrar_conta(nro_conta, agencia, contas):
     return contas_filtradas[0] if contas_filtradas else None
 
 def listar_contas(contas):
-    for conta in contas:
+    for conta in ContasIterador(contas):
         print("=" * 100)
         print(textwrap.dedent(str(conta)))
 
