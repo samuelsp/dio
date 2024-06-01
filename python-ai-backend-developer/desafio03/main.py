@@ -8,6 +8,7 @@ from transacao import Transacao
 from historico import Historico
 from contas_iterador import ContasIterador
 from clientes_iterator import ClientesIterator
+from pytz import timezone
 
 import textwrap
 from datetime import datetime
@@ -25,8 +26,11 @@ menu = '''
 
 def log_transacao(func):
     def wrapper(*args, **kwargs):
+        data_hora = datetime.now(timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
         resultado = func(*args, **kwargs)
-        print(f"{datetime.now()}: {func.__name__.upper()}")
+        with open("log.txt", "a") as arquivo:
+            arquivo.write(f"[{data_hora}]: Função '{func.__name__}' executada com argumentos {args} e {kwargs}."
+                          f"Retornou {resultado}\n")
         return resultado
     return wrapper
 

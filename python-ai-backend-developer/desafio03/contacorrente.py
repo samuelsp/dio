@@ -25,6 +25,9 @@ class ContaCorrente(Conta):
 
         return False
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: ('{self.agencia}', '{self.numero}', '{self.cliente.nome}')>"
+
     def __str__(self):
         return f"""\
             Agência:\t{self.agencia}

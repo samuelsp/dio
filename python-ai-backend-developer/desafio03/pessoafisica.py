@@ -19,10 +19,18 @@ class PessoaFisica(Cliente):
     def data_nascimento(self):
         return self._data_nascimento
 
+    @property
+    def endereco(self):
+        return self._endereco
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: ('{self.nome}', '{self.data_nascimento}', '{self.cpf}', '{self.endereco}')>"
+
+
     def __str__(self):
-        return (f"Nome: {self._nome}\n"
-                f"Data Nascimento: {self._data_nascimento}\n"
-                f"CPF: {self._cpf}\n"
+        return (f"Nome: {self.nome}\n"
+                f"Data Nascimento: {self.data_nascimento}\n"
+                f"CPF: {self.cpf}\n"
                 f"Endereço: {self.endereco}\n")
 
 
