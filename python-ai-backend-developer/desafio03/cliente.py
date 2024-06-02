@@ -1,5 +1,3 @@
-from transacao import Transacao
-
 class Cliente:
     def __init__(self, endereco):
         self._endereco = endereco
@@ -19,7 +17,7 @@ class Cliente:
 
     def realizar_transacao(self, conta, transacao):
         if len(conta.historico.transacoes_do_dia()) >= 10:
-            print('\n@@@ Você excedeu o número de transações diárias permitidas! @@@')
+            print("\n@@@ Você excedeu o número de transações diárias permitidas! @@@")
             return
 
         transacao.registrar(conta)

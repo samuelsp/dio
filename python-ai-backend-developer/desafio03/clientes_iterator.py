@@ -2,6 +2,7 @@ class ClientesIterator:
     def __init__(self, clientes):
         self.clientes = clientes
         self._index = 0
+
     def __iter__(self):
         return self
 
@@ -18,4 +19,3 @@ class ClientesIterator:
             raise StopIteration
         finally:
             self._index += 1
-
