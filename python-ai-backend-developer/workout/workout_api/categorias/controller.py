@@ -1,15 +1,20 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status, Depends, FastAPI
+from fastapi_pagination import Page, Params, add_pagination
+from fastapi_pagination.ext.sqlalchemy import paginate as paginate_sqlalchemy
 from pydantic import UUID4
 from uuid import uuid4
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from workout_api.contrib.dependencies import DataBaseDependency
 from workout_api.categorias.schemas import CategoriaIn, CategoriaOut
 from workout_api.categorias.models import CategoriaModel
 
 router = APIRouter()
+app = FastAPI()
+add_pagination(app)
+app.include_router(router)
 
 @router.post(path='/',
              summary='Criar nova categoria'
@@ -49,6 +54,14 @@ async def query(db_session: DataBaseDependency) -> list[CategoriaOut]:
     categorias: list[CategoriaOut] = (await db_session.execute(select(CategoriaModel))
                                       ).scalars().all()
     return categorias
+
+@router.get(path='/paginate',
+             summary='Obter todas as categorias com paginação'
+             , status_code=status.HTTP_200_OK
+             , response_model=Page[CategoriaOut])
+async def get_categorias(db_session: DataBaseDependency, params: Params = Depends()) -> Page[CategoriaOut]:
+    categorias = select(CategoriaModel).order_by(CategoriaModel.nome)
+    return await paginate_sqlalchemy(db_session, categorias, params)
 
 
 @router.get(path='/{id}',

@@ -1,14 +1,20 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status, Depends, FastAPI
+from fastapi_pagination import Page, Params, add_pagination
+from fastapi_pagination.ext.sqlalchemy import paginate as paginate_sqlalchemy
 from pydantic import UUID4
 from uuid import uuid4
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from workout_api.contrib.dependencies import DataBaseDependency
 from workout_api.centro_treinamento.schemas import CentroTreinamentoIn, CentroTreinamentoOut
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
 
 router = APIRouter()
+app = FastAPI()
+add_pagination(app)
+app.include_router(router)
 
 @router.post(path='/',
              summary='Criar novo centro de treinamento'
@@ -49,6 +55,14 @@ async def query(db_session: DataBaseDependency) -> list[CentroTreinamentoOut]:
     centros_treinamento: list[CentroTreinamentoOut] = (await db_session.execute(select(CentroTreinamentoModel))
                                       ).scalars().all()
     return centros_treinamento
+
+@router.get(path='/paginate',
+             summary='Obter todos os centros de treinamento com paginação'
+             , status_code=status.HTTP_200_OK
+             , response_model=Page[CentroTreinamentoOut])
+async def get_cts(db_session: DataBaseDependency, params: Params = Depends()) -> Page[CentroTreinamentoOut]:
+    cts = select(CentroTreinamentoModel).order_by(CentroTreinamentoModel.nome)
+    return await paginate_sqlalchemy(db_session, cts, params)
 
 @router.get(path='/{id}',
              summary='Obter centro de treinamento por Id'

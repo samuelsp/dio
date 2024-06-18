@@ -13,11 +13,10 @@ from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
 from workout_api.categorias.models import CategoriaModel
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
 from workout_api.contrib.dependencies import DataBaseDependency
-from workout_api.configs.database import get_session
 
 router = APIRouter()
 app = FastAPI()
-add_pagination(app)  # Adicione esta linha
+add_pagination(app)
 app.include_router(router)
 
 @router.post(
