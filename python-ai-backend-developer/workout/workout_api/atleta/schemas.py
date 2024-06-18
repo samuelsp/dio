@@ -5,7 +5,6 @@ from workout_api.centro_treinamento.schemas import CentroTreinamentoAtleta
 
 from workout_api.contrib.schemas import BaseSchema, OutMixin
 
-
 class Atleta(BaseSchema):
     nome: Annotated[str, Field(description='Nome do atleta', example='Joao', max_length=50)]
     cpf: Annotated[str, Field(description='CPF do atleta', example='12345678900', max_length=11)]
@@ -19,7 +18,6 @@ class Atleta(BaseSchema):
 
 class AtletaIn(Atleta):
     pass
-
 
 class AtletaOut(Atleta, OutMixin):
     pass

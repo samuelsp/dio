@@ -27,7 +27,7 @@ async def post(
 
 
 @router.get(path='/',
-             summary='Obter todos as centros de treinamento'
+             summary='Obter todos os centros de treinamento'
              , status_code=status.HTTP_200_OK
              , response_model=list[CentroTreinamentoOut])
 async def query(db_session: DataBaseDependency) -> list[CentroTreinamentoOut]:
