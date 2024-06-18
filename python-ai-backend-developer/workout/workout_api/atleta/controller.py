@@ -7,6 +7,7 @@ from datetime import datetime
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional
 
 from workout_api.atleta.models import AtletaModel
 from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
@@ -80,9 +81,18 @@ async def post(
              summary='Obter todos os atletas'
              , status_code=status.HTTP_200_OK
              , response_model=list[AtletaOut])
-async def query(db_session: DataBaseDependency) -> list[AtletaOut]:
-    atletas: list[AtletaOut] = (await db_session.execute(select(AtletaModel))
-                                      ).scalars().all()
+async def query(db_session: DataBaseDependency, nome: Optional[str] = None, cpf: Optional[str] = None) -> (
+        list)[AtletaOut]:
+    query = select(AtletaModel)
+
+    if nome:
+        query = query.filter(AtletaModel.nome == nome)
+
+    if cpf:
+        query = query.filter(AtletaModel.cpf == cpf)
+
+    atletas: list[AtletaOut] = (await db_session.execute(query)
+                               ).scalars().all()
     return atletas
 
 @router.get(path='/paginate',
@@ -98,8 +108,10 @@ async def get_atletas(db_session: DataBaseDependency, params: Params = Depends()
              , status_code=status.HTTP_200_OK
              , response_model=AtletaOut)
 async def query(id: UUID4, db_session: DataBaseDependency) -> AtletaOut:
-    atleta: AtletaOut = (await db_session.execute(select(AtletaModel).filter_by(id=id))
-                              ).scalars().first()
+    atleta: AtletaOut = (
+        await db_session.execute(select(AtletaModel).filter_by(id=id))
+    ).scalars().first()
+
     if not atleta:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND
