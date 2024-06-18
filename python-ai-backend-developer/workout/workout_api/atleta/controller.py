@@ -1,18 +1,24 @@
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status, Depends, FastAPI
+from fastapi_pagination import Page, Params, add_pagination
+from fastapi_pagination.ext.sqlalchemy import paginate as paginate_sqlalchemy
 from pydantic import UUID4
 from uuid import uuid4
 from datetime import datetime
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from workout_api.atleta.models import AtletaModel
 from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
 from workout_api.categorias.models import CategoriaModel
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
 from workout_api.contrib.dependencies import DataBaseDependency
-
+from workout_api.configs.database import get_session
 
 router = APIRouter()
+app = FastAPI()
+add_pagination(app)  # Adicione esta linha
+app.include_router(router)
 
 @router.post(
     '/',
@@ -79,6 +85,14 @@ async def query(db_session: DataBaseDependency) -> list[AtletaOut]:
     atletas: list[AtletaOut] = (await db_session.execute(select(AtletaModel))
                                       ).scalars().all()
     return atletas
+
+@router.get(path='/paginate',
+             summary='Obter todos os atletas com paginação'
+             , status_code=status.HTTP_200_OK
+             , response_model=Page[AtletaOut])
+async def get_atletas(db_session: DataBaseDependency, params: Params = Depends()) -> Page[AtletaOut]:
+    atletas = select(AtletaModel).order_by(AtletaModel.created_at)
+    return await paginate_sqlalchemy(db_session, atletas, params)
 
 @router.get(path='/{id}',
              summary='Obter atleta por Id'
