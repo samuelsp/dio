@@ -34,7 +34,7 @@ async def post(
     except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_303_SEE_OTHER,
-            detail=f'Já existe uma categoria o nome: {categoria_in.nome}.'
+            detail=f'Já existe uma categoria com o nome: {categoria_in.nome}.'
         )
         db_session.rollback()
 
@@ -43,6 +43,7 @@ async def post(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f'Ocorreu um erro ao inserir os dados no banco: {e}'
         )
+        db_session.rollback()
 
     return categoria_out
 
@@ -52,7 +53,7 @@ async def post(
              , response_model=list[CategoriaOut])
 async def query(db_session: DataBaseDependency) -> list[CategoriaOut]:
     categorias: list[CategoriaOut] = (await db_session.execute(select(CategoriaModel))
-                                      ).scalars().all()
+                                     ).scalars().all()
     return categorias
 
 @router.get(path='/paginate',
@@ -62,7 +63,6 @@ async def query(db_session: DataBaseDependency) -> list[CategoriaOut]:
 async def get_categorias(db_session: DataBaseDependency, params: Params = Depends()) -> Page[CategoriaOut]:
     categorias = select(CategoriaModel).order_by(CategoriaModel.nome)
     return await paginate_sqlalchemy(db_session, categorias, params)
-
 
 @router.get(path='/{id}',
              summary='Obter categoria por Id'

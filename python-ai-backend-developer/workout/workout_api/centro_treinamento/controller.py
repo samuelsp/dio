@@ -43,6 +43,7 @@ async def post(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f'Ocorreu um erro ao inserir os dados no banco: {e}'
         )
+        db_session.rollback()
 
     return centro_treinamento_out
 
