@@ -70,10 +70,10 @@ async def post(
         )
         db_session.rollback()
 
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Ocorreu um erro ao inserir os dados no banco'
+            detail=f'Ocorreu um erro ao inserir os dados no banco: {e}'
         )
 
     return atleta_out
@@ -92,8 +92,7 @@ async def get_all(db_session: DataBaseDependency, nome: Optional[str] = None, cp
     if cpf:
         query = query.filter(AtletaModel.cpf == cpf)
 
-    atletas: list[AtletaOut] = (await db_session.execute(query)
-                               ).scalars().all()
+    atletas: list[AtletaOut] = (await db_session.execute(query)).scalars().all()
     return atletas
 
 @router.get(path='/paginate',
@@ -103,8 +102,6 @@ async def get_all(db_session: DataBaseDependency, nome: Optional[str] = None, cp
 async def get_atletas(db_session: DataBaseDependency, params: Params = Depends()) -> Page[AtletaOut]:
     atletas = select(AtletaModel).order_by(AtletaModel.created_at)
     return await paginate_sqlalchemy(db_session, atletas, params)
-
-from sqlalchemy import select
 
 @router.get(path='/resumo',
              summary='Obter todos os atletas com response personalizado'
@@ -143,7 +140,7 @@ async def query(id: UUID4, db_session: DataBaseDependency) -> AtletaOut:
 
 @router.patch(
     '/{id}',
-    summary='Editar um Atleta pelo id',
+    summary='Editar um atleta pelo id',
     status_code=status.HTTP_200_OK,
     response_model=AtletaOut,
 )

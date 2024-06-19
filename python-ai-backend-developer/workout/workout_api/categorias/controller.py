@@ -38,10 +38,10 @@ async def post(
         )
         db_session.rollback()
 
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Ocorreu um erro ao inserir os dados no banco'
+            detail=f'Ocorreu um erro ao inserir os dados no banco: {e}'
         )
 
     return categoria_out
