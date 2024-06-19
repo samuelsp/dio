@@ -4,13 +4,14 @@ from fastapi_pagination.ext.sqlalchemy import paginate as paginate_sqlalchemy
 from pydantic import UUID4
 from uuid import uuid4
 from datetime import datetime
+from sqlalchemy import join
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from workout_api.atleta.models import AtletaModel
-from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate
+from workout_api.atleta.schemas import AtletaIn, AtletaOut, AtletaUpdate, AtletaResumo
 from workout_api.categorias.models import CategoriaModel
 from workout_api.centro_treinamento.models import CentroTreinamentoModel
 from workout_api.contrib.dependencies import DataBaseDependency
@@ -81,7 +82,7 @@ async def post(
              summary='Obter todos os atletas'
              , status_code=status.HTTP_200_OK
              , response_model=list[AtletaOut])
-async def query(db_session: DataBaseDependency, nome: Optional[str] = None, cpf: Optional[str] = None) -> (
+async def get_all(db_session: DataBaseDependency, nome: Optional[str] = None, cpf: Optional[str] = None) -> (
         list)[AtletaOut]:
     query = select(AtletaModel)
 
@@ -102,6 +103,25 @@ async def query(db_session: DataBaseDependency, nome: Optional[str] = None, cpf:
 async def get_atletas(db_session: DataBaseDependency, params: Params = Depends()) -> Page[AtletaOut]:
     atletas = select(AtletaModel).order_by(AtletaModel.created_at)
     return await paginate_sqlalchemy(db_session, atletas, params)
+
+from sqlalchemy import select
+
+@router.get(path='/resumo',
+             summary='Obter todos os atletas com response personalizado'
+             , status_code=status.HTTP_200_OK
+             , response_model=list[AtletaResumo])
+async def get_all_resumo(db_session: DataBaseDependency) -> (
+        list)[AtletaResumo]:
+    query = select(AtletaModel.nome, CentroTreinamentoModel.nome.label("centro_treinamento"),
+                   CategoriaModel.nome.label("categoria"))
+    query = query.select_from(AtletaModel)
+    query = query.join(CentroTreinamentoModel, AtletaModel.centro_treinamento_id == CentroTreinamentoModel.pk_id)
+    query = query.join(CategoriaModel, AtletaModel.categoria_id == CategoriaModel.pk_id)
+
+    result = await db_session.execute(query)
+    atletas = [AtletaResumo(nome=row[0], centro_treinamento=row[1], categoria=row[2]) for row in result]
+
+    return atletas
 
 @router.get(path='/{id}',
              summary='Obter atleta por Id'
