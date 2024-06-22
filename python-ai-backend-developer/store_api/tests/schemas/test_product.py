@@ -1,7 +1,7 @@
 import pytest
 from uuid import UUID
 from store.core.schemas.product import ProductIn
-from store.core.schemas.factories import product_data
+from tests.schemas.factories import product_data
 from pydantic import ValidationError
 
 
